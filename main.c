@@ -38,34 +38,37 @@ int main(int argc, char* argv[]) {
     //server bude prijimat nove spojenia cez socket serverSocket <sys/socket.h>
     listen(serverSocket, 10);
 
-    //server caka na pripojenie klienta <sys/socket.h>
-    struct sockaddr_in clientAddress;
-    socklen_t clientAddressLength = sizeof(clientAddress);
-    int clientSocket = accept(serverSocket, (struct sockaddr *)&clientAddress, &clientAddressLength);
-
-    //uzavretie pasivneho socketu <unistd.h>
-    close(serverSocket);
-    if (clientSocket < 0) {
-        printError("Chyba - accept.");
-    }
-
-    //inicializacia dat zdielanych medzi vlaknami
-    DATA data;
-    data_init(&data, userName, clientSocket);
+    int clientSocket[2];
+    struct sockaddr_in clientAddress[2];
 
     //vytvorenie vlakna pre zapisovanie dat do socketu <pthread.h>
-    pthread_t thread;
-    pthread_create(&thread, NULL, data_writeData, (void *)&data);
+    pthread_t threads[2];
+    DATA data[2];
 
-    //v hlavnom vlakne sa bude vykonavat citanie dat zo socketu
-    data_readData((void *)&data);
+    //server caka na pripojenie klienta <sys/socket.h>
+    //a vytvara nove vlakna pre kazdeho klienta
+    for (int i = 0; i < 2; i++) {
+        socklen_t clientAddressLength = sizeof(clientAddress[i]);
+        clientSocket[i] = accept(serverSocket, (struct sockaddr *)&clientAddress[i], &clientAddressLength);
 
-    //pockame na skoncenie zapisovacieho vlakna <pthread.h>
-    pthread_join(thread, NULL);
-    data_destroy(&data);
+        if (clientSocket[i] < 0) {
+            printError("Chyba - accept.");
+        }
 
-    //uzavretie socketu klienta <unistd.h>
-    close(clientSocket);
+        //inicializacia dat zdielanych medzi vlaknami
+
+        data_init(&data[i], userName, clientSocket[i]);
+
+        pthread_create(&threads[i], NULL, data_writeData, (void *)&data[i]);
+        pthread_create(&threads[i], NULL, data_readData, (void *)&data[i]);
+    }
+
+    for (int i = 0; i < 2; i++) {
+        pthread_join(threads[i], NULL);
+        data_destroy(&data[i]);
+        //uzavretie socketu klienta <unistd.h>
+        close(clientSocket[i]);
+    }
 
     return (EXIT_SUCCESS);
 }
