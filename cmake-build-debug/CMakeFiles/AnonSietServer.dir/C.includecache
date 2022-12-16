@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/tmp/tmp.GRlTpNue1y/definitions.h
+pthread.h
+-
+
+/tmp/tmp.GRlTpNue1y/main.c
+definitions.h
+/tmp/tmp.GRlTpNue1y/definitions.h
+stdlib.h
+-
+string.h
+-
+sys/socket.h
+-
+arpa/inet.h
+-
+unistd.h
+-
+pthread.h
+-
+

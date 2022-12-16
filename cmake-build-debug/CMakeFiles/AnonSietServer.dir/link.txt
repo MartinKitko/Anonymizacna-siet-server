@@ -1,0 +1,1 @@
+/usr/bin/cc -g CMakeFiles/AnonSietServer.dir/main.c.o CMakeFiles/AnonSietServer.dir/definitions.c.o -o AnonSietServer  -lpthread 
