@@ -1,12 +1,20 @@
 #include "definitions.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <pthread.h>
+
+#define MAX_CLIENTS 10
+
+typedef struct {
+    pthread_t thread;
+    int clientSocket;
+    DATA data;
+} CLIENT;
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {
@@ -38,37 +46,35 @@ int main(int argc, char* argv[]) {
     //server bude prijimat nove spojenia cez socket serverSocket <sys/socket.h>
     listen(serverSocket, 10);
 
-    int clientSocket[2];
-    struct sockaddr_in clientAddress[2];
+    CLIENT clients[MAX_CLIENTS];
+    int numClients = 0;
 
-    //vytvorenie vlakna pre zapisovanie dat do socketu <pthread.h>
-    pthread_t threads[2];
-    DATA data[2];
+    while (keepRunning) {
+        int clientSocket;
+        struct sockaddr_in clientAddress;
+        socklen_t clientAddressLength = sizeof(clientAddress);
+        clientSocket = accept(serverSocket, (struct sockaddr *)&clientAddress, &clientAddressLength);
 
-    //server caka na pripojenie klienta <sys/socket.h>
-    //a vytvara nove vlakna pre kazdeho klienta
-    for (int i = 0; i < 2; i++) {
-        socklen_t clientAddressLength = sizeof(clientAddress[i]);
-        clientSocket[i] = accept(serverSocket, (struct sockaddr *)&clientAddress[i], &clientAddressLength);
-
-        if (clientSocket[i] < 0) {
+        if (clientSocket < 0) {
             printError("Chyba - accept.");
         }
 
-        //inicializacia dat zdielanych medzi vlaknami
+        clients[numClients].clientSocket = clientSocket;
 
-        data_init(&data[i], userName, clientSocket[i]);
+        data_init(&clients[numClients].data, userName, clientSocket);
+        pthread_create(&clients[numClients].thread, NULL, data_writeData, (void *)&clients[numClients].data);
+        pthread_create(&clients[numClients].thread, NULL, data_readData, (void *)&clients[numClients].data);
 
-        pthread_create(&threads[i], NULL, data_writeData, (void *)&data[i]);
-        pthread_create(&threads[i], NULL, data_readData, (void *)&data[i]);
+        numClients++;
     }
 
-    for (int i = 0; i < 2; i++) {
-        pthread_join(threads[i], NULL);
-        data_destroy(&data[i]);
-        //uzavretie socketu klienta <unistd.h>
-        close(clientSocket[i]);
+    for (int i = 0; i < numClients; i++) {
+        pthread_join(clients[i].thread, NULL);
+        data_destroy(&clients[i].data);
+        close(clients[i].clientSocket);
     }
+
+    printf("Uspesne ukoncene");
 
     return (EXIT_SUCCESS);
 }

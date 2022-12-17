@@ -2,6 +2,7 @@
 #define	DEFINITIONS_H
 
 #include <pthread.h>
+#include <stdbool.h>
 
 #ifdef	__cplusplus
 extern "C" {
@@ -10,6 +11,7 @@ extern "C" {
 #define USER_LENGTH 10
 #define BUFFER_LENGTH 300
 extern char *endMsg;
+extern bool keepRunning;
 
 typedef struct data {
     char userName[USER_LENGTH + 1];

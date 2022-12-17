@@ -9,6 +9,7 @@
 #include <fcntl.h>
 
 char *endMsg = ":end";
+bool keepRunning = true;
 
 void data_init(DATA *data, const char* userName, const int socket) {
     data->socket = socket;
@@ -47,6 +48,9 @@ void *data_readData(void *data) {
             char *pos = strstr(posSemi + 1, endMsg);
             if (pos != NULL && pos - posSemi == 2 && *(pos + strlen(endMsg)) == '\0') {
                 *(pos - 2) = '\0';
+                if (strcmp(buffer, "admin") == 0) {
+                    keepRunning = false;
+                }
                 printf("Pouzivatel %s ukoncil komunikaciu.\n", buffer);
                 data_stop(pdata);
             }
