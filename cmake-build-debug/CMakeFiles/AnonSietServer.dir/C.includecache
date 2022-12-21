@@ -6,23 +6,27 @@
 
 #IncludeRegexTransform: 
 
-/tmp/tmp.GRlTpNue1y/definitions.h
-pthread.h
--
-
-/tmp/tmp.GRlTpNue1y/main.c
+/tmp/tmp.GRlTpNue1y/definitions.c
 definitions.h
 /tmp/tmp.GRlTpNue1y/definitions.h
+stdio.h
+-
 stdlib.h
 -
 string.h
 -
-sys/socket.h
--
-arpa/inet.h
+errno.h
 -
 unistd.h
 -
+fcntl.h
+-
+
+/tmp/tmp.GRlTpNue1y/definitions.h
 pthread.h
+-
+stdbool.h
+-
+netinet/in.h
 -
 
