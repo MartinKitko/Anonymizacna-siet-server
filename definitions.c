@@ -9,9 +9,8 @@
 #include <fcntl.h>
 
 char *endMsg = ":end";
-bool keepRunning = true;
 
-void data_init(DATA *data, const char* userName, const int socket) {
+void data_init(DATA *data, const char *userName, const int socket) {
     data->socket = socket;
     data->stop = 0;
     data->userName[USER_LENGTH] = '\0';
@@ -38,27 +37,25 @@ int data_isStopped(DATA *data) {
 }
 
 void *data_readData(void *data) {
-    DATA *pdata = (DATA *)data;
+    DATA *pdata = (DATA *) data;
     char buffer[BUFFER_LENGTH + 1];
     buffer[BUFFER_LENGTH] = '\0';
-    while(!data_isStopped(pdata)) {
+    while (!data_isStopped(pdata)) {
         bzero(buffer, BUFFER_LENGTH);
         if (read(pdata->socket, buffer, BUFFER_LENGTH) > 0) {
             char *posSemi = strchr(buffer, ':');
             char *pos = strstr(posSemi + 1, endMsg);
             if (pos != NULL && pos - posSemi == 2 && *(pos + strlen(endMsg)) == '\0') {
                 *(pos - 2) = '\0';
-                if (strcmp(buffer, "admin") == 0) {
+                /*if (strcmp(buffer, "server") == 0) {
                     keepRunning = false;
-                }
+                }*/
                 printf("Pouzivatel %s ukoncil komunikaciu.\n", buffer);
                 data_stop(pdata);
-            }
-            else {
+            } else {
                 printf("%s\n", buffer);
             }
-        }
-        else {
+        } else {
             data_stop(pdata);
         }
     }
@@ -67,7 +64,7 @@ void *data_readData(void *data) {
 }
 
 void *data_writeData(void *data) {
-    DATA *pdata = (DATA *)data;
+    DATA *pdata = (DATA *) data;
     char buffer[BUFFER_LENGTH + 1];
     buffer[BUFFER_LENGTH] = '\0';
     int userNameLength = strlen(pdata->userName);
@@ -78,7 +75,7 @@ void *data_writeData(void *data) {
     FD_ZERO(&inputs);
     struct timeval tv;
     tv.tv_usec = 0;
-    while(!data_isStopped(pdata)) {
+    while (!data_isStopped(pdata)) {
         tv.tv_sec = 1;
         FD_SET(STDIN_FILENO, &inputs);
         select(STDIN_FILENO + 1, &inputs, NULL, NULL, &tv);
@@ -107,8 +104,7 @@ void *data_writeData(void *data) {
 void printError(char *str) {
     if (errno != 0) {
         perror(str);
-    }
-    else {
+    } else {
         fprintf(stderr, "%s\n", str);
     }
     exit(EXIT_FAILURE);
