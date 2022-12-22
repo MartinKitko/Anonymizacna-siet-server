@@ -45,7 +45,7 @@ void data_destroy(DATA *data);
 void data_stop(DATA *data);
 int data_isStopped(DATA *data);
 void *data_readData(void *data);
-void *data_writeData(void *data);
+void *stop(void *);
 
 void printError(char *str);
 

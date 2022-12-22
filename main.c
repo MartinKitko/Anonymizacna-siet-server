@@ -7,7 +7,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <fcntl.h>
 
 int serverSocket;
 NODE nodes[NUM_NODES];
@@ -144,9 +143,9 @@ int main(int argc, char *argv[]) {
     CLIENT clients[MAX_CLIENTS];
     int numClients = 0;
 
-    int serverNodeSocket;
-    struct sockaddr_in serverNodeAddress;
-    socklen_t serverNodeAddressLength = sizeof(serverNodeAddress);
+    int exitNodeSocket;
+    struct sockaddr_in exitNodeAddress;
+    socklen_t exitNodeAddressLength = sizeof(exitNodeAddress);
 
     int clientSocket;
     struct sockaddr_in clientAddress;
@@ -154,13 +153,16 @@ int main(int argc, char *argv[]) {
     fd_set readfds;
     struct timeval timeout;
 
+    pthread_t endThread;
+    pthread_create(&endThread, NULL, stop, NULL);
+
     while (keepRunning) {
         FD_ZERO(&readfds);
         FD_SET(serverSocket, &readfds);
 
-        timeout.tv_sec = 5;
-        timeout.tv_sec = 0;
-        int result = select(serverSocket+1, &readfds, NULL, NULL, &timeout);
+        timeout.tv_usec = 0;
+        timeout.tv_sec = 1;
+        int result = select(serverSocket + 1, &readfds, NULL, NULL, &timeout);
 
         if (result > 0) {
             clientSocket = accept(serverSocket, (struct sockaddr *) &clientAddress, &clientAddressLength);
@@ -173,17 +175,19 @@ int main(int argc, char *argv[]) {
                     pthread_create(&nodeThreads[i], NULL, receiveAndForward, (void *) &nodes[i]);
                 }
                 for (int i = 0; i < NUM_NODES - 1; i++) {
-                    if (connect(nodes[i].socketOut, (struct sockaddr *) &nodes[i + 1].address, sizeof(nodes[i + 1].address)) < 0) {
+                    if (connect(nodes[i].socketOut, (struct sockaddr *) &nodes[i + 1].address,
+                                sizeof(nodes[i + 1].address)) < 0) {
                         printError("Chyba - node connect to next node.");
                     }
                 }
 
-                if (connect(nodes[NUM_NODES - 1].socketOut, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0) {
+                if (connect(nodes[NUM_NODES - 1].socketOut, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) <
+                    0) {
                     printError("Chyba - node connect to server.");
                 }
 
-                serverNodeSocket = accept(serverSocket, (struct sockaddr *) &serverNodeAddress, &serverNodeAddressLength);
-                if (serverNodeSocket < 0) {
+                exitNodeSocket = accept(serverSocket, (struct sockaddr *) &exitNodeAddress, &exitNodeAddressLength);
+                if (exitNodeSocket < 0) {
                     printError("Chyba - server node accept.");
                 }
 
@@ -201,8 +205,8 @@ int main(int argc, char *argv[]) {
                 printf("%s\n", buffer);*/
             }
 
-            data_init(&clients[numClients].data, userName, serverNodeSocket);
-            pthread_create(&clients[numClients].thread, NULL, data_writeData, (void *) &clients[numClients].data);
+            data_init(&clients[numClients].data, userName, exitNodeSocket);
+            //pthread_create(&clients[numClients].thread, NULL, data_writeData, (void *) &clients[numClients].data);
             pthread_create(&clients[numClients].thread, NULL, data_readData, (void *) &clients[numClients].data);
 
             if (numClients < MAX_CLIENTS) {
@@ -217,16 +221,21 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    pthread_join(endThread, NULL);
     close(serverSocket);
 
-    for (int i = 0; i < numClients; i++) {
-        pthread_join(clients[i].thread, NULL);
-        data_destroy(&clients[i].data);
-        close(clients[i].socket);
+    if (numClients > 0) {
+        for (int i = 0; i < NUM_NODES; ++i) {
+            pthread_join(nodeThreads[i], NULL);
+        }
+        for (int i = 0; i < numClients; i++) {
+            pthread_join(clients[i].thread, NULL);
+            data_destroy(&clients[i].data);
+            close(clients[i].socket);
+        }
     }
 
     for (int i = 0; i < NUM_NODES; ++i) {
-        pthread_join(nodeThreads[i], NULL);
         close(nodes[i].socketIn);
         close(nodes[i].socketOut);
     }

@@ -6,7 +6,6 @@
 #include <errno.h>
 
 #include <unistd.h>
-#include <fcntl.h>
 
 char *endMsg = ":end";
 
@@ -40,64 +39,54 @@ void *data_readData(void *data) {
     DATA *pdata = (DATA *) data;
     char buffer[BUFFER_LENGTH + 1];
     buffer[BUFFER_LENGTH] = '\0';
-    while (!data_isStopped(pdata)) {
-        bzero(buffer, BUFFER_LENGTH);
-        if (read(pdata->socket, buffer, BUFFER_LENGTH) > 0) {
-            char *posSemi = strchr(buffer, ':');
-            char *pos = strstr(posSemi + 1, endMsg);
-            if (pos != NULL && pos - posSemi == 2 && *(pos + strlen(endMsg)) == '\0') {
-                *(pos - 2) = '\0';
-                /*if (strcmp(buffer, "server") == 0) {
-                    keepRunning = false;
-                }*/
-                printf("Pouzivatel %s ukoncil komunikaciu.\n", buffer);
-                data_stop(pdata);
+    struct timeval timeout;
+    fd_set readfds;
+    while (keepRunning && !data_isStopped(pdata)) {
+        timeout.tv_sec = 1;
+        timeout.tv_usec = 0;
+
+        FD_ZERO(&readfds);
+        FD_SET(pdata->socket, &readfds);
+
+        int result = select(pdata->socket + 1, &readfds, NULL, NULL, &timeout);
+        if (result > 0) {
+            bzero(buffer, BUFFER_LENGTH);
+            if (read(pdata->socket, buffer, BUFFER_LENGTH) > 0) {
+                char *posSemi = strchr(buffer, ':');
+                char *pos = strstr(posSemi + 1, endMsg);
+                if (pos != NULL && pos - posSemi == 2 && *(pos + strlen(endMsg)) == '\0') {
+                    *(pos - 2) = '\0';
+                    printf("Pouzivatel %s ukoncil komunikaciu.\n", buffer);
+                    data_stop(pdata);
+                } else {
+                    printf("%s\n", buffer);
+                }
             } else {
-                printf("%s\n", buffer);
+                data_stop(pdata);
             }
-        } else {
-            data_stop(pdata);
+        } else if (result != 0) {
+            printError("Chyba - readData select.");
         }
     }
 
     return NULL;
 }
 
-void *data_writeData(void *data) {
-    DATA *pdata = (DATA *) data;
-    char buffer[BUFFER_LENGTH + 1];
-    buffer[BUFFER_LENGTH] = '\0';
-    int userNameLength = strlen(pdata->userName);
+void *stop(void *unused) {
+    char *text = malloc(BUFFER_LENGTH);
+    while (keepRunning && fgets(text, BUFFER_LENGTH, stdin) > 0) {
+        char *pos = strchr(text, '\n');
+        if (pos != NULL) {
+            *pos = '\0';
+        }
 
-    //pre pripad, ze chceme poslat viac dat, ako je kapacita buffra
-    fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL, 0) | O_NONBLOCK);
-    fd_set inputs;
-    FD_ZERO(&inputs);
-    struct timeval tv;
-    tv.tv_usec = 0;
-    while (!data_isStopped(pdata)) {
-        tv.tv_sec = 1;
-        FD_SET(STDIN_FILENO, &inputs);
-        select(STDIN_FILENO + 1, &inputs, NULL, NULL, &tv);
-        if (FD_ISSET(STDIN_FILENO, &inputs)) {
-            sprintf(buffer, "%s: ", pdata->userName);
-            char *textStart = buffer + (userNameLength + 2);
-            while (fgets(textStart, BUFFER_LENGTH - (userNameLength + 2), stdin) > 0) {
-                char *pos = strchr(textStart, '\n');
-                if (pos != NULL) {
-                    *pos = '\0';
-                }
-                write(pdata->socket, buffer, strlen(buffer) + 1);
-
-                if (strstr(textStart, endMsg) == textStart && strlen(textStart) == strlen(endMsg)) {
-                    printf("Koniec komunikacie.\n");
-                    data_stop(pdata);
-                }
-            }
+        if (strstr(text, endMsg) == text && strlen(text) == strlen(endMsg)) {
+            keepRunning = false;
+            printf("Koniec programu.\n");
         }
     }
-    fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL, 0) & ~O_NONBLOCK);
 
+    free(text);
     return NULL;
 }
 
