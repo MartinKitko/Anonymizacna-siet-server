@@ -6,6 +6,7 @@
 #include <errno.h>
 
 #include <unistd.h>
+#include <fcntl.h>
 
 char *endMsg = ":end";
 
@@ -74,30 +75,23 @@ void *data_readData(void *data) {
 
 void *processMessage(void *arg) {
     int *socket = arg;
-    fd_set readfds;
-    struct timeval timeout;
-    int received;
+    int received, result;
+
+    int flags = fcntl(*socket, F_GETFL, 0);
+    fcntl(*socket, F_SETFL, flags | O_NONBLOCK);
 
     while (keepRunning) {
-        FD_ZERO(&readfds);
-        FD_SET(*socket, &readfds);
-
-        timeout.tv_sec = 1;
-        int result = select(FD_SETSIZE, &readfds, NULL, NULL, &timeout);
-        if (result < 0) {
-            printError("Chyba - exit node select");
-            break;
-        } else if (result == 0) { // timeout
-            continue;
-        }
-
         char buffer[BUFFER_LENGTH + 1];
         received = recv(*socket, buffer, sizeof(buffer), 0);
         if (received < 0) {
-            printError("Chyba - exit node recv.");
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                continue;
+            } else {
+                printError("Chyba - exit node recv");
+            }
         } else if (received == 0) {
             printf("Spojenie ukoncene.\n");
-            return NULL;
+            break;
         }
         buffer[received] = '\0';
 
