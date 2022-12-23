@@ -78,6 +78,30 @@ void *receiveAndForward(void *arg) {
     return NULL;
 }
 
+void * processMessage(void *arg) {
+    /*
+    // Download the URL
+    char *url = msgData;
+
+    // Create a curl handle
+    CURL *curl_handle = curl_easy_init();
+
+    // Set the URL to download
+    curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+
+    // Set the callback function to write the contents to a string
+    char *html_content = malloc(1);
+    *html_content = '\0';
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_to_string);
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, html_content);
+
+    // Download the contents of the URL
+    curl_easy_perform(curl_handle);
+
+    // Clean up
+    curl_easy_cleanup(curl_handle);*/
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 3) {
         printError("Sever je nutne spustit s nasledujucimi argumentmi: port pouzivatel.");
@@ -140,6 +164,7 @@ int main(int argc, char *argv[]) {
     }
 
     pthread_t nodeThreads[NUM_NODES];
+    pthread_t processing;
     CLIENT clients[MAX_CLIENTS];
     int numClients = 0;
 
@@ -152,6 +177,7 @@ int main(int argc, char *argv[]) {
     socklen_t clientAddressLength = sizeof(clientAddress);
     fd_set readfds;
     struct timeval timeout;
+    int numNodes;
 
     pthread_t endThread;
     pthread_create(&endThread, NULL, stop, NULL);
@@ -170,18 +196,34 @@ int main(int argc, char *argv[]) {
                 printError("Chyba - accept.");
             }
 
+            int BUFFER_SIZE = 1024;
+            char buffer[BUFFER_SIZE];
+            int received = recv(clientSocket, buffer, BUFFER_SIZE, 0);//doesnt stopg
+            if (received < 0) {
+                printError("Chyba - recv numNodes of nodes.");
+            }
+            printf("%s\n", buffer);
+            char *endptr;
+            numNodes = (int)strtol(buffer, &endptr, 10);
+            if (*endptr != '\0') {  // the string contains invalid characters
+                printError("Chyba - zle zadane udaje.");
+            }
+            if (numNodes < 3 || numNodes > NUM_NODES) {  // the integer is out of range
+                printError("Chyba - pocet uzlov musi byt v rozsahu 3-20.");
+            }
+
             if (numClients == 0) {
-                for (int i = 0; i < NUM_NODES; i++) {
+                for (int i = 0; i < numNodes; i++) {
                     pthread_create(&nodeThreads[i], NULL, receiveAndForward, (void *) &nodes[i]);
                 }
-                for (int i = 0; i < NUM_NODES - 1; i++) {
+                for (int i = 0; i < numNodes - 1; i++) {
                     if (connect(nodes[i].socketOut, (struct sockaddr *) &nodes[i + 1].address,
                                 sizeof(nodes[i + 1].address)) < 0) {
                         printError("Chyba - node connect to next node.");
                     }
                 }
 
-                if (connect(nodes[NUM_NODES - 1].socketOut, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) <
+                if (connect(nodes[numNodes - 1].socketOut, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) <
                     0) {
                     printError("Chyba - node connect to server.");
                 }
@@ -190,6 +232,7 @@ int main(int argc, char *argv[]) {
                 if (exitNodeSocket < 0) {
                     printError("Chyba - server node accept.");
                 }
+                pthread_create(&processing, NULL, processMessage, &exitNodeSocket);
 
                 struct sockaddr_in entryNodeAddress = nodes[0].address;
                 send(clientSocket, &entryNodeAddress, sizeof(entryNodeAddress), 0);
@@ -225,7 +268,7 @@ int main(int argc, char *argv[]) {
     close(serverSocket);
 
     if (numClients > 0) {
-        for (int i = 0; i < NUM_NODES; ++i) {
+        for (int i = 0; i < numNodes; ++i) {
             pthread_join(nodeThreads[i], NULL);
         }
         for (int i = 0; i < numClients; i++) {
@@ -235,7 +278,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    for (int i = 0; i < NUM_NODES; ++i) {
+    for (int i = 0; i < numNodes; ++i) {
         close(nodes[i].socketIn);
         close(nodes[i].socketOut);
     }
