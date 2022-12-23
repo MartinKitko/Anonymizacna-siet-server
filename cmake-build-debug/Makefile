@@ -169,6 +169,33 @@ definitions.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/definitions.c.s
 .PHONY : definitions.c.s
 
+downloader.o: downloader.c.o
+
+.PHONY : downloader.o
+
+# target to build an object file
+downloader.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/downloader.c.o
+.PHONY : downloader.c.o
+
+downloader.i: downloader.c.i
+
+.PHONY : downloader.i
+
+# target to preprocess a source file
+downloader.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/downloader.c.i
+.PHONY : downloader.c.i
+
+downloader.s: downloader.c.s
+
+.PHONY : downloader.s
+
+# target to generate assembly for a file
+downloader.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/downloader.c.s
+.PHONY : downloader.c.s
+
 main.o: main.c.o
 
 .PHONY : main.o
@@ -208,6 +235,9 @@ help:
 	@echo "... definitions.o"
 	@echo "... definitions.i"
 	@echo "... definitions.s"
+	@echo "... downloader.o"
+	@echo "... downloader.i"
+	@echo "... downloader.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

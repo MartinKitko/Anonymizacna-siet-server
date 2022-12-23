@@ -82,6 +82,12 @@
 		<Unit filename="/tmp/tmp.GRlTpNue1y/definitions.h">
 			<Option target="AnonSietServer"/>
 		</Unit>
+		<Unit filename="/tmp/tmp.GRlTpNue1y/downloader.c">
+			<Option target="AnonSietServer"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.GRlTpNue1y/downloader.h">
+			<Option target="AnonSietServer"/>
+		</Unit>
 		<Unit filename="/tmp/tmp.GRlTpNue1y/main.c">
 			<Option target="AnonSietServer"/>
 		</Unit>

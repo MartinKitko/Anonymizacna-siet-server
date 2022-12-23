@@ -1,4 +1,5 @@
 #include "definitions.h"
+#include "downloader.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +8,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <curl/curl.h>
 
 int serverSocket;
 NODE nodes[NUM_NODES];
@@ -78,28 +80,60 @@ void *receiveAndForward(void *arg) {
     return NULL;
 }
 
-void * processMessage(void *arg) {
-    /*
-    // Download the URL
-    char *url = msgData;
+void *processMessage(void *arg) {
+    int *socket = arg;
+    fd_set readfds;
+    struct timeval timeout;
+    int received;
 
-    // Create a curl handle
-    CURL *curl_handle = curl_easy_init();
+    while (keepRunning) {
+        FD_ZERO(&readfds);
+        FD_SET(*socket, &readfds);
 
-    // Set the URL to download
-    curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+        timeout.tv_sec = 1;
+        int result = select(FD_SETSIZE, &readfds, NULL, NULL, &timeout);
+        if (result < 0) {
+            printError("Chyba - exit node select");
+            break;
+        } else if (result == 0) { // timeout
+            continue;
+        }
 
-    // Set the callback function to write the contents to a string
-    char *html_content = malloc(1);
-    *html_content = '\0';
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_to_string);
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, html_content);
+        char buffer[BUFFER_LENGTH + 1];
+        received = recv(*socket, buffer, sizeof(buffer), 0);
+        if (received < 0) {
+            printError("Chyba - exit node recv.");
+        } else if (received == 0) {
+            printf("Spojenie ukoncene.\n");
+            return NULL;
+        }
+        buffer[received] = '\0';
 
-    // Download the contents of the URL
-    curl_easy_perform(curl_handle);
+        char username[BUFFER_LENGTH + 1];
+        char *colon = strstr(buffer, ": ");
+        if (colon != NULL) {
+            strncpy(username, buffer, colon - buffer);
+            username[colon - buffer] = '\0';
+        }
+        char *url = colon + 2;
 
-    // Clean up
-    curl_easy_cleanup(curl_handle);*/
+        struct Downloader downloader;
+        downloader_init(&downloader, url);
+        result = downloader_download(&downloader);
+        if (result == CURLE_OK) {
+            printf("User: %s\n%s\n", username, downloader.content);
+            strncpy(buffer, downloader.content, BUFFER_LENGTH);
+        } else {
+            strncpy(buffer, "Stiahnutie neuspesne, skontrolujte URL.", BUFFER_LENGTH);
+        }
+        downloader_free(&downloader);
+
+        if (send(*socket, buffer, BUFFER_LENGTH, 0) < 0) {
+            printError("Chyba - exit node send");
+        }
+    }
+
+    return NULL;
 }
 
 int main(int argc, char *argv[]) {
@@ -198,17 +232,17 @@ int main(int argc, char *argv[]) {
 
             int BUFFER_SIZE = 1024;
             char buffer[BUFFER_SIZE];
-            int received = recv(clientSocket, buffer, BUFFER_SIZE, 0);//doesnt stopg
+            int received = recv(clientSocket, buffer, BUFFER_SIZE, 0);
             if (received < 0) {
                 printError("Chyba - recv numNodes of nodes.");
             }
             printf("%s\n", buffer);
             char *endptr;
-            numNodes = (int)strtol(buffer, &endptr, 10);
-            if (*endptr != '\0') {  // the string contains invalid characters
+            numNodes = (int) strtol(buffer, &endptr, 10);
+            if (*endptr != '\0') {
                 printError("Chyba - zle zadane udaje.");
             }
-            if (numNodes < 3 || numNodes > NUM_NODES) {  // the integer is out of range
+            if (numNodes < 3 || numNodes > NUM_NODES) {
                 printError("Chyba - pocet uzlov musi byt v rozsahu 3-20.");
             }
 
@@ -227,29 +261,20 @@ int main(int argc, char *argv[]) {
                     0) {
                     printError("Chyba - node connect to server.");
                 }
-
-                exitNodeSocket = accept(serverSocket, (struct sockaddr *) &exitNodeAddress, &exitNodeAddressLength);
-                if (exitNodeSocket < 0) {
-                    printError("Chyba - server node accept.");
-                }
-                pthread_create(&processing, NULL, processMessage, &exitNodeSocket);
-
-                struct sockaddr_in entryNodeAddress = nodes[0].address;
-                send(clientSocket, &entryNodeAddress, sizeof(entryNodeAddress), 0);
-                // v tento moment sa klient odpaja od servera a pripaja na entry node
-                close(clientSocket);
-
-                /*int BUFFER_SIZE = 1024;
-                char buffer[BUFFER_SIZE];
-                int received = recv(nodeConnectData.socket, buffer, BUFFER_SIZE, 0);
-                if (received < 0) {
-                    printError("Chyba - recv ennod.");
-                }
-                printf("%s\n", buffer);*/
             }
 
+            exitNodeSocket = accept(serverSocket, (struct sockaddr *) &exitNodeAddress, &exitNodeAddressLength);
+            if (exitNodeSocket < 0) {
+                printError("Chyba - server node accept.");
+            }
+            pthread_create(&processing, NULL, processMessage, &exitNodeSocket);
+
+            struct sockaddr_in entryNodeAddress = nodes[0].address;
+            send(clientSocket, &entryNodeAddress, sizeof(entryNodeAddress), 0);
+            // v tento moment sa klient odpaja od servera a pripaja na entry node
+            close(clientSocket);
+
             data_init(&clients[numClients].data, userName, exitNodeSocket);
-            //pthread_create(&clients[numClients].thread, NULL, data_writeData, (void *) &clients[numClients].data);
             pthread_create(&clients[numClients].thread, NULL, data_readData, (void *) &clients[numClients].data);
 
             if (numClients < MAX_CLIENTS) {

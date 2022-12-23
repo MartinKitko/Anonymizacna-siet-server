@@ -4,6 +4,10 @@
 CMakeFiles/AnonSietServer.dir/definitions.c.o: ../definitions.c
 CMakeFiles/AnonSietServer.dir/definitions.c.o: ../definitions.h
 
+CMakeFiles/AnonSietServer.dir/downloader.c.o: ../downloader.c
+CMakeFiles/AnonSietServer.dir/downloader.c.o: ../downloader.h
+
 CMakeFiles/AnonSietServer.dir/main.c.o: ../definitions.h
+CMakeFiles/AnonSietServer.dir/main.c.o: ../downloader.h
 CMakeFiles/AnonSietServer.dir/main.c.o: ../main.c
 

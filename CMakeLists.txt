@@ -3,6 +3,6 @@ project(AnonSietServer C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(AnonSietServer main.c definitions.c definitions.h)
+add_executable(AnonSietServer main.c definitions.c definitions.h downloader.c downloader.h)
 
-target_link_libraries(AnonSietServer pthread)
+target_link_libraries(AnonSietServer pthread curl)

@@ -2,6 +2,7 @@ file(REMOVE_RECURSE
   "AnonSietServer"
   "AnonSietServer.pdb"
   "CMakeFiles/AnonSietServer.dir/definitions.c.o"
+  "CMakeFiles/AnonSietServer.dir/downloader.c.o"
   "CMakeFiles/AnonSietServer.dir/main.c.o"
 )
 
