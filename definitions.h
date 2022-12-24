@@ -46,6 +46,7 @@ void data_destroy(DATA *data);
 void data_stop(DATA *data);
 int data_isStopped(DATA *data);
 void *data_readData(void *data);
+void *receiveAndForward(void *arg);
 void *processMessage(void *arg);
 void *stop(void *);
 
