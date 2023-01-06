@@ -76,31 +76,31 @@ include CMakeFiles/AnonSietServer.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/AnonSietServer.dir/flags.make
 
-CMakeFiles/AnonSietServer.dir/main.c.o: CMakeFiles/AnonSietServer.dir/flags.make
-CMakeFiles/AnonSietServer.dir/main.c.o: ../main.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/tmp/tmp.GRlTpNue1y/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/AnonSietServer.dir/main.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/AnonSietServer.dir/main.c.o -c /tmp/tmp.GRlTpNue1y/main.c
+CMakeFiles/AnonSietServer.dir/server_main.c.o: CMakeFiles/AnonSietServer.dir/flags.make
+CMakeFiles/AnonSietServer.dir/server_main.c.o: ../server_main.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/tmp/tmp.GRlTpNue1y/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/AnonSietServer.dir/server_main.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/AnonSietServer.dir/server_main.c.o -c /tmp/tmp.GRlTpNue1y/server_main.c
 
-CMakeFiles/AnonSietServer.dir/main.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/AnonSietServer.dir/main.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /tmp/tmp.GRlTpNue1y/main.c > CMakeFiles/AnonSietServer.dir/main.c.i
+CMakeFiles/AnonSietServer.dir/server_main.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/AnonSietServer.dir/server_main.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /tmp/tmp.GRlTpNue1y/server_main.c > CMakeFiles/AnonSietServer.dir/server_main.c.i
 
-CMakeFiles/AnonSietServer.dir/main.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/AnonSietServer.dir/main.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /tmp/tmp.GRlTpNue1y/main.c -o CMakeFiles/AnonSietServer.dir/main.c.s
+CMakeFiles/AnonSietServer.dir/server_main.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/AnonSietServer.dir/server_main.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /tmp/tmp.GRlTpNue1y/server_main.c -o CMakeFiles/AnonSietServer.dir/server_main.c.s
 
-CMakeFiles/AnonSietServer.dir/definitions.c.o: CMakeFiles/AnonSietServer.dir/flags.make
-CMakeFiles/AnonSietServer.dir/definitions.c.o: ../definitions.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/tmp/tmp.GRlTpNue1y/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/AnonSietServer.dir/definitions.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/AnonSietServer.dir/definitions.c.o -c /tmp/tmp.GRlTpNue1y/definitions.c
+CMakeFiles/AnonSietServer.dir/server_definitions.c.o: CMakeFiles/AnonSietServer.dir/flags.make
+CMakeFiles/AnonSietServer.dir/server_definitions.c.o: ../server_definitions.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/tmp/tmp.GRlTpNue1y/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/AnonSietServer.dir/server_definitions.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/AnonSietServer.dir/server_definitions.c.o -c /tmp/tmp.GRlTpNue1y/server_definitions.c
 
-CMakeFiles/AnonSietServer.dir/definitions.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/AnonSietServer.dir/definitions.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /tmp/tmp.GRlTpNue1y/definitions.c > CMakeFiles/AnonSietServer.dir/definitions.c.i
+CMakeFiles/AnonSietServer.dir/server_definitions.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/AnonSietServer.dir/server_definitions.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /tmp/tmp.GRlTpNue1y/server_definitions.c > CMakeFiles/AnonSietServer.dir/server_definitions.c.i
 
-CMakeFiles/AnonSietServer.dir/definitions.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/AnonSietServer.dir/definitions.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /tmp/tmp.GRlTpNue1y/definitions.c -o CMakeFiles/AnonSietServer.dir/definitions.c.s
+CMakeFiles/AnonSietServer.dir/server_definitions.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/AnonSietServer.dir/server_definitions.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /tmp/tmp.GRlTpNue1y/server_definitions.c -o CMakeFiles/AnonSietServer.dir/server_definitions.c.s
 
 CMakeFiles/AnonSietServer.dir/downloader.c.o: CMakeFiles/AnonSietServer.dir/flags.make
 CMakeFiles/AnonSietServer.dir/downloader.c.o: ../downloader.c
@@ -117,15 +117,15 @@ CMakeFiles/AnonSietServer.dir/downloader.c.s: cmake_force
 
 # Object files for target AnonSietServer
 AnonSietServer_OBJECTS = \
-"CMakeFiles/AnonSietServer.dir/main.c.o" \
-"CMakeFiles/AnonSietServer.dir/definitions.c.o" \
+"CMakeFiles/AnonSietServer.dir/server_main.c.o" \
+"CMakeFiles/AnonSietServer.dir/server_definitions.c.o" \
 "CMakeFiles/AnonSietServer.dir/downloader.c.o"
 
 # External object files for target AnonSietServer
 AnonSietServer_EXTERNAL_OBJECTS =
 
-AnonSietServer: CMakeFiles/AnonSietServer.dir/main.c.o
-AnonSietServer: CMakeFiles/AnonSietServer.dir/definitions.c.o
+AnonSietServer: CMakeFiles/AnonSietServer.dir/server_main.c.o
+AnonSietServer: CMakeFiles/AnonSietServer.dir/server_definitions.c.o
 AnonSietServer: CMakeFiles/AnonSietServer.dir/downloader.c.o
 AnonSietServer: CMakeFiles/AnonSietServer.dir/build.make
 AnonSietServer: CMakeFiles/AnonSietServer.dir/link.txt

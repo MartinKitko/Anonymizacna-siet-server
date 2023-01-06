@@ -76,19 +76,19 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/tmp/tmp.GRlTpNue1y/definitions.c">
-			<Option target="AnonSietServer"/>
-		</Unit>
-		<Unit filename="/tmp/tmp.GRlTpNue1y/definitions.h">
-			<Option target="AnonSietServer"/>
-		</Unit>
 		<Unit filename="/tmp/tmp.GRlTpNue1y/downloader.c">
 			<Option target="AnonSietServer"/>
 		</Unit>
 		<Unit filename="/tmp/tmp.GRlTpNue1y/downloader.h">
 			<Option target="AnonSietServer"/>
 		</Unit>
-		<Unit filename="/tmp/tmp.GRlTpNue1y/main.c">
+		<Unit filename="/tmp/tmp.GRlTpNue1y/server_definitions.c">
+			<Option target="AnonSietServer"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.GRlTpNue1y/server_definitions.h">
+			<Option target="AnonSietServer"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.GRlTpNue1y/server_main.c">
 			<Option target="AnonSietServer"/>
 		</Unit>
 		<Unit filename="/tmp/tmp.GRlTpNue1y/CMakeLists.txt">

@@ -1,5 +1,5 @@
 #include "downloader.h"
-#include "definitions.h"
+#include "server_definitions.h"
 
 static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     size_t realSize = size * nmemb;

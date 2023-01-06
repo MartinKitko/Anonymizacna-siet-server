@@ -1,1 +1,1 @@
-/usr/bin/cc -g CMakeFiles/AnonSietServer.dir/main.c.o CMakeFiles/AnonSietServer.dir/definitions.c.o CMakeFiles/AnonSietServer.dir/downloader.c.o -o AnonSietServer  -lpthread -lcurl 
+/usr/bin/cc -g CMakeFiles/AnonSietServer.dir/server_main.c.o CMakeFiles/AnonSietServer.dir/server_definitions.c.o CMakeFiles/AnonSietServer.dir/downloader.c.o -o AnonSietServer  -lpthread -lcurl 

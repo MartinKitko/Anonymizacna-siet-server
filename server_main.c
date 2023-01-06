@@ -1,4 +1,4 @@
-#include "definitions.h"
+#include "server_definitions.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,7 +8,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <fcntl.h>
 
 int serverSocket;
 NODE nodes[NUM_NODES];
@@ -16,16 +15,14 @@ bool keepRunning = true;
 
 int main(int argc, char *argv[]) {
     srand(time(NULL));
-    if (argc < 3) {
-        printError("Sever je nutne spustit s nasledujucimi argumentmi: port pouzivatel.");
+    if (argc < 2) {
+        printError("Sever je nutne spustit s nasledujucim argumentom: port.");
     }
     int port = atoi(argv[1]);
     if (port <= 0) {
         printError("Port musi byt cele cislo vacsie ako 0.");
     }
-    char *userName = argv[2];
 
-    //vytvorenie TCP socketu <sys/socket.h>
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket < 0) {
         printError("Chyba - socket.");
@@ -35,20 +32,19 @@ int main(int argc, char *argv[]) {
         printError("Chyba - setsockopt.");
     }
 
-    //definovanie adresy servera <arpa/inet.h>
+    // definovanie adresy servera
     struct sockaddr_in serverAddress;
-    serverAddress.sin_family = AF_INET;         //internetove sockety
-    serverAddress.sin_addr.s_addr = INADDR_ANY; //prijimame spojenia z celeho internetu
-    serverAddress.sin_port = htons(port);       //nastavenie portu
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_addr.s_addr = INADDR_ANY;
+    serverAddress.sin_port = htons(port);
 
-    //prepojenie adresy servera so socketom <sys/socket.h>
     if (bind(serverSocket, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0) {
         printError("Chyba - bind.");
     }
 
-    //server bude prijimat nove spojenia cez socket serverSocket <sys/socket.h>
     listen(serverSocket, 10);
 
+    // vytvorenie socketov pre nody
     for (int i = 0; i < NUM_NODES; i++) {
         nodes[i].id = i + 1;
         nodes[i].socketIn = socket(AF_INET, SOCK_STREAM, 0);
@@ -78,7 +74,6 @@ int main(int argc, char *argv[]) {
 
     pthread_t nodeThreads[NUM_NODES];
     pthread_t processing;
-    //CLIENT clients[MAX_CLIENTS];
     int numClients = 0;
 
     int exitNodeSocket;
@@ -170,54 +165,52 @@ int main(int argc, char *argv[]) {
                     clientNodeIndex = 1 + rand() % (numNodes - 3);
                 }
 
-                if (true) {
-                    // spojenie uzlov pre vytvorenie cesty od klienta k serveru
-                    for (int i = 0; i < numNodes - 1; i++) {
-                        if (numClientNodes == 1) {
-                            if (i == clientNodeIndex - 1) { // pridanie klientskej nody do cesty
-                                if (send(clientSockets[0], &randomNodes[i + 2].address, sizeof(randomNodes[i + 2].address), 0) < 0) {
-                                    printError("Chyba - nextNode addr send");
-                                }
-                                printf("Noda 100 zacina\n");
-                                if (connect(randomNodes[i].socketOut, (struct sockaddr *) &clientNodeAddr,
-                                            sizeof(clientNodeAddr)) < 0) {
-                                    printError("Chyba - node connect to client.");
-                                }
-                                printf("Noda %d sa pripaja na klienta\n", randomNodes[i].id);
-                                continue;
-                            } else if (i == clientNodeIndex) { // preskoci vynechanu nodu ak existuje klientska noda
-                                continue;
+                // spojenie uzlov pre vytvorenie cesty od klienta k serveru
+                for (int i = 0; i < numNodes - 1; i++) {
+                    if (numClientNodes == 1) {
+                        if (i == clientNodeIndex - 1) { // pridanie klientskej nody do cesty
+                            if (send(clientSockets[0], &randomNodes[i + 2].address, sizeof(randomNodes[i + 2].address), 0) < 0) {
+                                printError("Chyba - nextNode addr send");
                             }
-                        }
-                        printf("Noda %d sa pripaja\n", randomNodes[i].id);
-                        if (connect(randomNodes[i].socketOut, (struct sockaddr *) &randomNodes[i + 1].address,
-                                    sizeof(randomNodes[i + 1].address)) < 0) {
-                            printError("Chyba - node connect to next node.\n");
-                        }
-                    }
-                    sleep(2);
-                    // vytvorenie vlakien pre nody
-                    for (int i = 0; i < numNodes; i++) {
-                        if (numClientNodes == 1 && i == clientNodeIndex) { // vynechanie nody ak existuje klientska noda
+                            printf("Noda 100 zacina\n");
+                            if (connect(randomNodes[i].socketOut, (struct sockaddr *) &clientNodeAddr,
+                                        sizeof(clientNodeAddr)) < 0) {
+                                printError("Chyba - node connect to client.");
+                            }
+                            printf("Noda %d sa pripaja na klienta\n", randomNodes[i].id);
+                            continue;
+                        } else if (i == clientNodeIndex) { // preskoci vynechanu nodu ak existuje klientska noda
                             continue;
                         }
-                        pthread_create(&nodeThreads[i], NULL, receiveAndForward, (void *) &randomNodes[i]);
                     }
-
-                    printf("Exit noda sa pripaja na server\n");
-                    // pripojenie exit nody na server
-                    if (connect(randomNodes[numNodes - 1].socketOut, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) <
-                        0) {
-                        printError("Chyba - node connect to server.");
+                    printf("Noda %d sa pripaja\n", randomNodes[i].id);
+                    if (connect(randomNodes[i].socketOut, (struct sockaddr *) &randomNodes[i + 1].address,
+                                sizeof(randomNodes[i + 1].address)) < 0) {
+                        printError("Chyba - node connect to next node.\n");
                     }
-
-                    exitNodeSocket = accept(serverSocket, (struct sockaddr *) &exitNodeAddress, &exitNodeAddressLength);
-                    if (exitNodeSocket < 0) {
-                        printError("Chyba - server node accept.");
-                    }
-                    printf("Exit noda sa pripojila na server\n");
-                    pthread_create(&processing, NULL, processMessage, &exitNodeSocket);
                 }
+                sleep(2);
+                // vytvorenie vlakien pre nody
+                for (int i = 0; i < numNodes; i++) {
+                    if (numClientNodes == 1 && i == clientNodeIndex) { // vynechanie nody ak existuje klientska noda
+                        continue;
+                    }
+                    pthread_create(&nodeThreads[i], NULL, receiveAndForward, (void *) &randomNodes[i]);
+                }
+
+                // pripojenie exit nody na server
+                printf("Exit noda sa pripaja na server\n");
+                if (connect(randomNodes[numNodes - 1].socketOut, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) <
+                    0) {
+                    printError("Chyba - node connect to server.");
+                }
+
+                exitNodeSocket = accept(serverSocket, (struct sockaddr *) &exitNodeAddress, &exitNodeAddressLength);
+                if (exitNodeSocket < 0) {
+                    printError("Chyba - server node accept.");
+                }
+                printf("Exit noda sa pripojila na server\n");
+                pthread_create(&processing, NULL, processMessage, &exitNodeSocket);
 
                 // poslanie adresy prveho uzla cesty klientovi
                 struct sockaddr_in entryNodeAddress = randomNodes[0].address;
@@ -226,11 +219,6 @@ int main(int argc, char *argv[]) {
                 close(clientSockets[0]);
                 if (numClientNodes > 0) {
                     close(clientSockets[1]);
-                }
-
-                if (numClients == MAX_CLIENTS) {
-                    printf("Dosiahnuty maximalny pocet klientov!\n");
-                    close(clientSockets[numClientNodes]);
                 }
             }
         } else if (result != 0) {
@@ -248,11 +236,6 @@ int main(int argc, char *argv[]) {
                 pthread_join(nodeThreads[i], NULL);
             }
         }
-        /*for (int i = 0; i < numClients; i++) {
-            pthread_join(clients[i].thread, NULL);
-            data_destroy(&clients[i].data);
-            close(clients[i].socket);
-        }*/
     }
 
     pthread_join(endThread, NULL);

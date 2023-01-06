@@ -142,33 +142,6 @@ AnonSietServer/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/build
 .PHONY : AnonSietServer/fast
 
-definitions.o: definitions.c.o
-
-.PHONY : definitions.o
-
-# target to build an object file
-definitions.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/definitions.c.o
-.PHONY : definitions.c.o
-
-definitions.i: definitions.c.i
-
-.PHONY : definitions.i
-
-# target to preprocess a source file
-definitions.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/definitions.c.i
-.PHONY : definitions.c.i
-
-definitions.s: definitions.c.s
-
-.PHONY : definitions.s
-
-# target to generate assembly for a file
-definitions.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/definitions.c.s
-.PHONY : definitions.c.s
-
 downloader.o: downloader.c.o
 
 .PHONY : downloader.o
@@ -196,32 +169,59 @@ downloader.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/downloader.c.s
 .PHONY : downloader.c.s
 
-main.o: main.c.o
+server_definitions.o: server_definitions.c.o
 
-.PHONY : main.o
+.PHONY : server_definitions.o
 
 # target to build an object file
-main.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/main.c.o
-.PHONY : main.c.o
+server_definitions.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/server_definitions.c.o
+.PHONY : server_definitions.c.o
 
-main.i: main.c.i
+server_definitions.i: server_definitions.c.i
 
-.PHONY : main.i
+.PHONY : server_definitions.i
 
 # target to preprocess a source file
-main.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/main.c.i
-.PHONY : main.c.i
+server_definitions.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/server_definitions.c.i
+.PHONY : server_definitions.c.i
 
-main.s: main.c.s
+server_definitions.s: server_definitions.c.s
 
-.PHONY : main.s
+.PHONY : server_definitions.s
 
 # target to generate assembly for a file
-main.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/main.c.s
-.PHONY : main.c.s
+server_definitions.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/server_definitions.c.s
+.PHONY : server_definitions.c.s
+
+server_main.o: server_main.c.o
+
+.PHONY : server_main.o
+
+# target to build an object file
+server_main.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/server_main.c.o
+.PHONY : server_main.c.o
+
+server_main.i: server_main.c.i
+
+.PHONY : server_main.i
+
+# target to preprocess a source file
+server_main.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/server_main.c.i
+.PHONY : server_main.c.i
+
+server_main.s: server_main.c.s
+
+.PHONY : server_main.s
+
+# target to generate assembly for a file
+server_main.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AnonSietServer.dir/build.make CMakeFiles/AnonSietServer.dir/server_main.c.s
+.PHONY : server_main.c.s
 
 # Help Target
 help:
@@ -232,15 +232,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... AnonSietServer"
-	@echo "... definitions.o"
-	@echo "... definitions.i"
-	@echo "... definitions.s"
 	@echo "... downloader.o"
 	@echo "... downloader.i"
 	@echo "... downloader.s"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... server_definitions.o"
+	@echo "... server_definitions.i"
+	@echo "... server_definitions.s"
+	@echo "... server_main.o"
+	@echo "... server_main.i"
+	@echo "... server_main.s"
 .PHONY : help
 
 

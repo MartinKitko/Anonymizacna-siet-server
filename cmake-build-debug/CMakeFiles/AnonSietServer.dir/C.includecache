@@ -6,17 +6,11 @@
 
 #IncludeRegexTransform: 
 
-/tmp/tmp.GRlTpNue1y/definitions.h
-pthread.h
--
-stdbool.h
--
-netinet/in.h
--
-
 /tmp/tmp.GRlTpNue1y/downloader.c
 downloader.h
 /tmp/tmp.GRlTpNue1y/downloader.h
+server_definitions.h
+/tmp/tmp.GRlTpNue1y/server_definitions.h
 
 /tmp/tmp.GRlTpNue1y/downloader.h
 stdio.h
@@ -28,14 +22,40 @@ string.h
 curl/curl.h
 -
 
-/tmp/tmp.GRlTpNue1y/main.c
-definitions.h
-/tmp/tmp.GRlTpNue1y/definitions.h
-downloader.h
-/tmp/tmp.GRlTpNue1y/downloader.h
+/tmp/tmp.GRlTpNue1y/server_definitions.c
+server_definitions.h
+/tmp/tmp.GRlTpNue1y/server_definitions.h
 stdio.h
 -
 stdlib.h
+-
+string.h
+-
+errno.h
+-
+unistd.h
+-
+fcntl.h
+-
+
+/tmp/tmp.GRlTpNue1y/server_definitions.h
+downloader.h
+/tmp/tmp.GRlTpNue1y/downloader.h
+pthread.h
+-
+stdbool.h
+-
+netinet/in.h
+-
+
+/tmp/tmp.GRlTpNue1y/server_main.c
+server_definitions.h
+/tmp/tmp.GRlTpNue1y/server_definitions.h
+stdio.h
+-
+stdlib.h
+-
+time.h
 -
 string.h
 -
@@ -46,7 +66,5 @@ arpa/inet.h
 unistd.h
 -
 pthread.h
--
-curl/curl.h
 -
 

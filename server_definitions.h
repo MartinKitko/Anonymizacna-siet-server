@@ -12,7 +12,6 @@ extern "C" {
 
 #define USER_LENGTH 10
 #define BUFFER_LENGTH 300
-#define MAX_CLIENTS 10
 #define NUM_NODES 20
 
 extern char *endMsg;
@@ -26,12 +25,6 @@ typedef struct data {
     int stop;
 } DATA;
 
-typedef struct client {
-    pthread_t thread;
-    int socket;
-    DATA data;
-} CLIENT;
-
 typedef struct node {
     int id;
     int socketIn;
@@ -41,11 +34,6 @@ typedef struct node {
 
 extern NODE nodes[NUM_NODES];
 
-void data_init(DATA *data, const char *userName, const int socket);
-void data_destroy(DATA *data);
-void data_stop(DATA *data);
-int data_isStopped(DATA *data);
-void *data_readData(void *data);
 void *receiveAndForward(void *arg);
 void *processMessage(void *arg);
 void *stop(void *);
