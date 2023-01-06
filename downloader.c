@@ -44,6 +44,7 @@ int downloader_download(struct Downloader *downloader) {
         if (result != CURLE_OK) {
             fprintf(stderr, "curl_easy_perform() failed: %s\n",
                     curl_easy_strerror(result));
+            free(chunk.memory);
         } else {
             downloader->content = chunk.memory;
         }
