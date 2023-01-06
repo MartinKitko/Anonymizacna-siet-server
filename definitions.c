@@ -88,6 +88,8 @@ void *receiveAndForward(void *arg) {
         printError(msg);
     }
 
+    printf("Noda %d prijala spojenie\n", node->id);
+
     fd_set readfds;
     struct timeval timeout;
     int recvFrom, sendTo, received;
@@ -98,6 +100,7 @@ void *receiveAndForward(void *arg) {
         FD_SET(node->socketOut, &readfds);
 
         timeout.tv_sec = 5;
+        timeout.tv_usec = 0;
 
         int result = select(FD_SETSIZE, &readfds, NULL, NULL, &timeout);
         if (result < 0) {
@@ -124,7 +127,7 @@ void *receiveAndForward(void *arg) {
             sprintf(msg, "Chyba - node %d recv.", node->id);
             printError(msg);
         } else if (received == 0) {
-            printf("Spojenie ukoncene.\n");
+            printf("Noda %d konci.\n", node->id);
             break;
         }
 
@@ -161,35 +164,46 @@ void *processMessage(void *arg) {
         }
         buffer[received] = '\0';
 
-        char username[BUFFER_LENGTH + 1];
+        char *url = "";
+        char username[BUFFER_LENGTH + 1] = "";
         char *colon = strstr(buffer, ": ");
         if (colon != NULL) {
             strncpy(username, buffer, colon - buffer);
-            username[colon - buffer] = '\0';
+            url = colon + 2;
         }
-        char *url = colon + 2;
 
         struct Downloader downloader;
         downloader_init(&downloader, url);
         result = downloader_download(&downloader);
         if (result == CURLE_OK) {
             printf("User: %s\n%s\n", username, downloader.content);
-            strncpy(buffer, downloader.content, BUFFER_LENGTH);
+            int contentLength = strlen(downloader.content);
+            int curPos = 0;
+            while (keepRunning && curPos < contentLength) {
+                int chunkLength = contentLength - curPos;
+                if (chunkLength > BUFFER_LENGTH) {
+                    chunkLength = BUFFER_LENGTH;
+                }
+                strncpy(buffer, downloader.content + curPos, chunkLength);
+                if (send(*socket, buffer, chunkLength, 0) < 0) {
+                    printError("Chyba - exit node send");
+                }
+                curPos += chunkLength;
+            }
         } else {
             strncpy(buffer, "Stiahnutie neuspesne, skontrolujte URL.", BUFFER_LENGTH);
+            if (send(*socket, buffer, BUFFER_LENGTH, 0) < 0) {
+                printError("Chyba - exit node send");
+            }
         }
         downloader_free(&downloader);
-
-        if (send(*socket, buffer, BUFFER_LENGTH, 0) < 0) {
-            printError("Chyba - exit node send");
-        }
     }
 
     return NULL;
 }
 
 void *stop(void *unused) {
-    char *text = malloc(BUFFER_LENGTH);
+    char text[BUFFER_LENGTH];
     while (keepRunning && fgets(text, BUFFER_LENGTH, stdin) > 0) {
         char *pos = strchr(text, '\n');
         if (pos != NULL) {
@@ -202,7 +216,6 @@ void *stop(void *unused) {
         }
     }
 
-    free(text);
     return NULL;
 }
 
