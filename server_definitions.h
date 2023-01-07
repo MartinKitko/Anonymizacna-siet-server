@@ -10,20 +10,12 @@
 extern "C" {
 #endif
 
-#define USER_LENGTH 10
 #define BUFFER_LENGTH 300
 #define NUM_NODES 20
 
 extern char *endMsg;
 extern bool keepRunning;
 extern int serverSocket;
-
-typedef struct data {
-    char userName[USER_LENGTH + 1];
-    pthread_mutex_t mutex;
-    int socket;
-    int stop;
-} DATA;
 
 typedef struct node {
     int id;

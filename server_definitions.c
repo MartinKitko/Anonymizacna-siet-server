@@ -16,6 +16,7 @@ void *receiveAndForward(void *arg) {
     char buffer[BUFFER_SIZE];
     printf("Noda %d zacina.\n", node->id);
 
+    // prijatie spojenia od inej nody alebo klienta
     struct sockaddr_in connectingNodeAddress;
     socklen_t connNodeAddrLength = sizeof(connectingNodeAddress);
     int newSocket = accept(node->socketIn, (struct sockaddr *) &connectingNodeAddress, &connNodeAddrLength);
@@ -36,9 +37,10 @@ void *receiveAndForward(void *arg) {
         FD_SET(newSocket, &readfds);
         FD_SET(node->socketOut, &readfds);
 
-        timeout.tv_sec = 5;
+        timeout.tv_sec = 1;
         timeout.tv_usec = 0;
 
+        // cakanie na spravu od jedneho zo socketov
         int result = select(FD_SETSIZE, &readfds, NULL, NULL, &timeout);
         if (result < 0) {
             printError("Chyba - node select.");
@@ -64,17 +66,18 @@ void *receiveAndForward(void *arg) {
             sprintf(msg, "Chyba - node %d recv.", node->id);
             printError(msg);
         } else if (received == 0) {
-            printf("Noda %d konci.\n", node->id);
             break;
         }
 
         printf("Noda %d prijala spravu a posiela ju dalej.\n", node->id);
 
+        // preposlanie spravy na socket, ktorym nebola prijata sprava
         if (send(sendTo, buffer, received, 0) < 0) {
             printError("Chyba - node send.");
         }
     }
 
+    printf("Noda %d konci.\n", node->id);
     close(newSocket);
     return NULL;
 }
@@ -107,6 +110,14 @@ void *processMessage(void *arg) {
         if (colon != NULL) {
             strncpy(username, buffer, colon - buffer);
             url = colon + 2;
+        }
+
+        if (strcmp(url, ":end") == 0) {
+            printf("Pouzivatel ukoncil komunikaciu\n");
+            if (send(*socket, buffer, BUFFER_LENGTH, 0) < 0) {
+                printError("Chyba - exit node send");
+            }
+            break;
         }
 
         struct Downloader downloader;
